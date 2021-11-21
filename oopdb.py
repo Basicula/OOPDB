@@ -124,7 +124,7 @@ class OOPDB:
             cursor.execute(query)
             self.connection.commit()
         except sqlite3.Error as e:
-            print(f"The error '{e}' occurred")
+            print(f"The error '{e}' occurred for query '{query}'")
             return False
 
         return True
@@ -139,13 +139,12 @@ class OOPDB:
         '''
         query = self.query + ";"
         self.query = ""
-        print(query)
         try:
             cursor = self.connection.cursor()
             cursor.execute(query)
             return cursor.fetchall()
         except sqlite3.Error as e:
-            print(f"The error '{e}' occurred")
+            print(f"The error '{e}' occurred for query '{query}'")
             return []
 
     def close(self) -> None:
