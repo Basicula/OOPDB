@@ -119,7 +119,6 @@ class OOPDB:
         '''
         query = self.query + ";"
         self.query = ""
-        print(query)
         try:
             cursor = self.connection.cursor()
             cursor.execute(query)
