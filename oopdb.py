@@ -121,7 +121,7 @@ class OOPDB:
         self.query = ""
         try:
             cursor = self.connection.cursor()
-            cursor.execute(query)
+            cursor.executescript(query)
             self.connection.commit()
         except sqlite3.Error as e:
             print(f"The error '{e}' occurred for query '{query}'")
@@ -141,7 +141,7 @@ class OOPDB:
         self.query = ""
         try:
             cursor = self.connection.cursor()
-            cursor.execute(query)
+            cursor.executescript(query)
             return cursor.fetchall()
         except sqlite3.Error as e:
             print(f"The error '{e}' occurred for query '{query}'")
@@ -160,7 +160,7 @@ class OOPDB:
             List of column configs for new table
         '''
         self.query += f"CREATE TABLE {table_name} "
-        self.query += format_array(columns) + " "
+        self.query += format_array(columns) + ";"
 
         return self
 
@@ -178,7 +178,7 @@ class OOPDB:
         self.query += f"INSERT INTO {table_name} "
         self.query += format_array(columns) + " "
         self.query += "VALUES "
-        self.query += format_array(values, "\"") + " "
+        self.query += format_array(values, "\"") + ";"
         
         return self
 
@@ -256,7 +256,8 @@ def tagged_content_example():
     content_title_column = ColumnConfig(name="Title", type=DataTypes.TEXT, is_null=False)
     db.create_table(content_table_name, [content_id_column, content_title_column]).execute()
     for i in range(content_rows_cnt):
-        db.insert_into(content_table_name, [content_title_column.name], [f"Column{i}"]).execute()
+        db.insert_into(content_table_name, [content_title_column.name], [f"Column{i}"])
+    db.execute()
 
     tags_rows_cnt = 5
     tags_table_name = "Tags"
@@ -283,5 +284,5 @@ def select_relations_from_tagged():
 if __name__ == "__main__":
     #create_test_db(10, 10, 100)
     #select_test()
-    #tagged_content_example()
-    select_relations_from_tagged()
+    tagged_content_example()
+    #select_relations_from_tagged()
