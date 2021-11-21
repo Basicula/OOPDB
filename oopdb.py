@@ -160,7 +160,7 @@ class OOPDB:
         columns : List[ColumnConfig], required
             List of column configs for new table
         '''
-        self.query = f"CREATE TABLE {table_name} "
+        self.query += f"CREATE TABLE {table_name} "
         self.query += format_array(columns) + " "
 
         return self
@@ -176,7 +176,7 @@ class OOPDB:
         values : List[Any], required
             List of values for selected columns
         '''
-        self.query = f"INSERT INTO {table_name} "
+        self.query += f"INSERT INTO {table_name} "
         self.query += format_array(columns) + " "
         self.query += "VALUES "
         self.query += format_array(values, "\"") + " "
@@ -194,9 +194,9 @@ class OOPDB:
         '''
         if len(columns) > 0:
             # format_array returns string with parentheses thats why substring[1:-1] is taken from returned string
-            self.query = f"SELECT {format_array(columns)[1:-1]} "
+            self.query += f"SELECT {format_array(columns)[1:-1]} "
         else:
-            self.query = f"SELECT * "
+            self.query += f"SELECT * "
         self.query += f"FROM {table_name} "
 
         return self
