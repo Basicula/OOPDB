@@ -71,7 +71,7 @@ def tagged_content_example():
 def select_relations_from_tagged():
     db = OOPDB("tagged_content.db")
     res = db.select("Content", ["Name", "Title"]).inner_join("Relations", "Content.Id", "ContentId").inner_join("Tags", "TagId", "Id").fetch()
-    print_rows(res, ["Name", "Title"])
+    print_table(res, ["Name", "Title"])
 
 if __name__ == "__main__":
     #create_test_db(10, 10, 100)

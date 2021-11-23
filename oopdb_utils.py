@@ -1,6 +1,7 @@
 from typing import List, Tuple
+from prettytable import PrettyTable
 
-def print_rows(rows : List[Tuple], column_headers : List[str] = []) -> None:
-    print(column_headers)
-    for row in rows:
-        print(row)
+def print_table(rows : List[Tuple], column_headers : List[str]) -> None:
+    table = PrettyTable(column_headers)
+    table.add_rows(rows)
+    print(table)
