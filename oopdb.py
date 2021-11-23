@@ -3,7 +3,16 @@ import enum
 from typing import Any, List
 
 def format_array(array : List[Any], element_wrapper : str = ''):
-    return "(" + ", ".join(f"{element_wrapper}{str(elem)}{element_wrapper}" for elem in array) + ")"
+    return ', '.join(f'{element_wrapper}{str(elem)}{element_wrapper}' for elem in array)
+
+class OrderingTypes(enum.Enum):
+    '''
+    Supported ordering types that maps on SQL ordering types
+        ASCENDING
+            Default value when anything set explicitly
+    '''
+    ASCENDING = "ASC"
+    DESCENDING = "DESC"
 
 class DataTypes(enum.Enum):
     '''
@@ -37,7 +46,7 @@ class ColumnConfig:
         self.is_null = is_null
 
     def __str__(self) -> str:
-        res = self.name + " " + self.type.name
+        res = self.name + " " + self.type.value
         if not self.is_null:
             res += " NOT NULL"
         return res
@@ -157,8 +166,7 @@ class OOPDB:
         columns : List[ColumnConfig], required
             List of column configs for new table
         '''
-        self.query += f"CREATE TABLE {table_name} "
-        self.query += format_array(columns) + ";"
+        self.query += f"CREATE TABLE {table_name} ({format_array(columns)});"
 
         return self
 
@@ -173,11 +181,9 @@ class OOPDB:
         values : List[Any], required
             List of values for selected columns
         '''
-        self.query += f"INSERT INTO {table_name} "
-        self.query += format_array(columns) + " "
-        self.query += "VALUES "
-        self.query += format_array(values, "\"") + ";"
-        
+        self.query += f"INSERT INTO {table_name} ({format_array(columns)}) "
+        self.query += "VALUES (" + format_array(values, '"') + ");"
+
         return self
 
     def select(self, table_name : str, columns : List[str] = []) -> 'OOPDB':
@@ -191,7 +197,7 @@ class OOPDB:
         '''
         if len(columns) > 0:
             # format_array returns string with parentheses thats why substring[1:-1] is taken from returned string
-            self.query += f"SELECT {format_array(columns)[1:-1]} "
+            self.query += f"SELECT {format_array(columns)} "
         else:
             self.query += f"SELECT * "
         self.query += f"FROM {table_name} "
@@ -210,4 +216,24 @@ class OOPDB:
             The name for the target table column on which joining will be applied
         '''
         self.query += f"INNER JOIN {table} ON {table_column} = {table}.{target_table_column} "
+        return self
+
+    def order_by(self, columns : List[str], orders : List[OrderingTypes]) -> 'OOPDB':
+        '''
+        Adds to the queue inner ordering command
+
+        columns : List[str], required
+            List of column names that will be sorted
+        orders : List[OrderingTypes], required
+            List of sort orders for each column
+        '''
+        if len(columns) != len(orders):
+            print(f"Order failed due to mismatching sizes of 'columns' and 'orders' lists")
+            return self
+
+        column_orders = []
+        for column, order in zip(columns, orders):
+            column_orders.append(f"{column} {order.value}")
+
+        self.query += f"ORDER BY {format_array(column_orders)}"
         return self
