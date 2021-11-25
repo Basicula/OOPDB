@@ -1,2 +1,4 @@
 __pycache__/
+dist/
+oopdb/oopdb.egg-info/
 *.db
