@@ -1,7 +1,7 @@
 import sqlite3
 import enum
 from typing import Any, List
-from column_config import *
+from .ColumnConfig import *
 
 def format_array(array : List[Any], element_wrapper : str = ''):
     return ', '.join(f'{element_wrapper}{str(elem)}{element_wrapper}' for elem in array)
@@ -20,7 +20,10 @@ class OOPDB:
     OOP abstraction for data base communication based on sqlite3
     '''
 
-    def __init__(self, db_path : str) -> None:
+    def __init__(self) -> None:
+        self.query = ""
+
+    def open(self, db_path : str) -> 'OOPDB':
         '''
         db_path : str, required
             The path to the data base
@@ -31,7 +34,10 @@ class OOPDB:
                 self.connection = sqlite3.connect(db_path)
             except sqlite3.Error as e:
                 print(f"The error '{e}' occurred")
-        self.query = ""
+        return self
+
+    def close(self) -> None:
+        self.connection.close()
 
     def execute(self) -> bool:
         '''
@@ -68,9 +74,6 @@ class OOPDB:
         except sqlite3.Error as e:
             print(f"The error '{e}' occurred for query '{query}'")
             return []
-
-    def close(self) -> None:
-        self.connection.close()
 
     def create_table(self, table_name : str, columns : List[ColumnConfig]) -> 'OOPDB':
         '''
