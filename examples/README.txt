@@ -1,0 +1,1 @@
+For correct examples processing you need to install 'oopdb' module first.
