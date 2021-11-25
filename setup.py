@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="oopdb",
-    version="0.0.2",
+    version="0.0.3",
     author="Basicula",
     author_email="maksim.basum@gmail.com",
     description="OOP abstraction/wrapper for work with SQL data bases",
@@ -19,6 +19,6 @@ setuptools.setup(
         "Programming Language :: Python :: 3",
         "Operating System :: OS Independent",
     ],
-    package_dir={"": "oopdb"},
-    packages=setuptools.find_packages(where="oopdb"),
+    package_dir={"": "src"},
+    packages=setuptools.find_packages(where="src"),
 )
