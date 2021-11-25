@@ -1,4 +1,5 @@
-from oopdb import *
+from oopdb.OOPDB import OOPDB
+from oopdb.ColumnConfig import PrimaryKey, DataTypes
 import unittest
 import sqlite3
 import os
@@ -24,7 +25,8 @@ class TestOOPDB(unittest.TestCase):
         temp2 = TempFileHolder("temp2.db")
 
         # create through wrapper
-        db = OOPDB(temp1.filename)
+        db =  OOPDB()
+        db.open(temp1.filename)
         column = PrimaryKey(name="id", is_auto_increment=False)
         db.create_table(table_name, [column]).execute()
         self.assertTrue(os.path.exists(temp1.filename))

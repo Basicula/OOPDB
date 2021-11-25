@@ -1,11 +1,13 @@
-from oopdb import *
-from oopdb_utils import *
+from oopdb.OOPDB import OOPDB
+from oopdb.ColumnConfig import ColumnConfig, DataTypes, PrimaryKey, ForeignKey
+from oopdb.Utils import print_table
 
 import random
 import os
 
 def create_test_db(table_cnt : int, max_columns_per_table : int, max_rows_per_table : int) -> None:
-    db = OOPDB("test.db")
+    db = OOPDB()
+    db.open("test.db")
     for table_id in range(table_cnt):
         column_cnt = random.randint(1, max_columns_per_table)
         columns = []
@@ -33,14 +35,16 @@ def create_test_db(table_cnt : int, max_columns_per_table : int, max_rows_per_ta
     db.close()
 
 def select_test():
-    db = OOPDB("test.db")
+    db = OOPDB()
+    db.open("test.db")
     print(db.select("Table_0").fetch())
 
 def tagged_content_example():
     db_file_path = "tagged_content.db"
     if os.path.exists(db_file_path):
         os.remove(db_file_path)
-    db = OOPDB(db_file_path)
+    db = OOPDB()
+    db.open(db_file_path)
     
     content_rows_cnt = 10
     content_table_name = "Content"
@@ -69,7 +73,8 @@ def tagged_content_example():
                 db.insert_into(relations_table_name, [relations_content_id_column.name, relations_tag_id_column.name], [content_id, tag_id]).execute()
 
 def select_relations_from_tagged():
-    db = OOPDB("tagged_content.db")
+    db = OOPDB()
+    db.open("tagged_content.db")
     res = db.select("Content", ["Name", "Title"]).inner_join("Relations", "Content.Id", "ContentId").inner_join("Tags", "TagId", "Id").fetch()
     print_table(res, ["Name", "Title"])
 
