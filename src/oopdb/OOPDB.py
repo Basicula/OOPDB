@@ -45,7 +45,9 @@ class OOPDB:
         
         Commonly used after pushing, updating and other commands without any output
         '''
-        query = self.query + ";"
+        query = self.query
+        if query[-1] != ';':
+            query += ';'
         self.query = ""
         try:
             cursor = self.connection.cursor()
@@ -65,7 +67,9 @@ class OOPDB:
 
         Returns list of rows
         '''
-        query = self.query + ";"
+        query = self.query
+        if query[-1] != ';':
+            query += ';'
         self.query = ""
         try:
             cursor = self.connection.cursor()
@@ -74,6 +78,22 @@ class OOPDB:
         except sqlite3.Error as e:
             print(f"The error '{e}' occurred for query '{query}'")
             return []
+
+    def table_names(self) -> 'OOPDB':
+        '''
+        Adds to the queue table names getting command
+
+        The result will be rows with table names
+        '''
+        self.query += "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'slite_%';"
+        return self
+
+    def column_names(self, table_name : str) -> 'OOPDB':
+        '''
+        Adds to the queue table's columns name getting command
+        '''
+        self.query += f"SELECT name FROM PRAGMA_TABLE_INFO('{table_name}');"
+        return self
 
     def create_table(self, table_name : str, columns : List[ColumnConfig]) -> 'OOPDB':
         '''
@@ -120,6 +140,16 @@ class OOPDB:
             self.query += f"SELECT * "
         self.query += f"FROM {table_name} "
 
+        return self
+
+    def select_count(self, table_name : str) -> 'OOPDB':
+        '''
+        Adds to the queue select data rows count command
+
+        table_name : str, required
+            The name for the target table
+        '''
+        self.query += f"SELECT COUNT(*) FROM {table_name} "
         return self
 
     def inner_join(self, table : str, table_column : str, target_table_column : str) -> 'OOPDB':
