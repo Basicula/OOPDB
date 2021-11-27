@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="oopdb",
-    version="0.0.3",
+    version="0.0.4",
     author="Basicula",
     author_email="maksim.basum@gmail.com",
     description="OOP abstraction/wrapper for work with SQL data bases",
