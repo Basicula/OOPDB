@@ -1,0 +1,2 @@
+0.0.3
+    First working release on PyPi with base functional for work with database based on sqlite3.
