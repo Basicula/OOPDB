@@ -11,7 +11,7 @@ OOPDB - OOP wrapper for work with database. For now it's based on sqlite3 python
     - [x] Column config - base abstraction for describing column configuration using folowing information
         - [x] Name
         - [x] Nullability
-        [- x] -ype - type from DataTypes
+        - [x] Type - type from DataTypes
     - [x] Primary key - abstraction based on column config abstraction using following additional information
         - [x] Autoincrement
     - [x] Foreign key - abstraction based on column config abstraction using following additional information
