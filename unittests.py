@@ -1,4 +1,4 @@
-from oopdb.OOPDB import OOPDB
+from oopdb.OOPDB import OOPDB, RowsStyle
 from oopdb.ColumnConfig import ColumnConfig, PrimaryKey, DataTypes
 import unittest
 import sqlite3
@@ -125,6 +125,51 @@ class TestOOPDB(unittest.TestCase):
         for actual_row_content in actual_row_contents:
             self.assertEqual(row_content[0], actual_row_content[0])
 
+    def test_dictionary_row_styles(self):
+        temp_db = TempDB()
+        db = temp_db.db
+
+        table_name = "TestTable"
+        column_names = ["TestColumn_1", "TestColumn_2"]
+        row_cnt = 123
+        row_content = ["TestColumn_1Content_1", "TestColumn_2Content_2"]
+        add_table_to_db(db, table_name, column_names, row_cnt, row_content)
+
+        actual_row_cnt = db.select_count(table_name).fetch()[0][0]
+        self.assertEqual(row_cnt, actual_row_cnt)
+
+        actual_row_contents = db.select(table_name).fetch(RowsStyle.DICTIONARY)
+        self.assertEqual(type(actual_row_contents[0]), dict)
+        for actual_row_content in actual_row_contents:
+            self.assertListEqual(list(actual_row_content.keys()), column_names)
+        for actual_row_content in actual_row_contents:
+            self.assertListEqual(row_content, [actual_row_content[column_names[0]], actual_row_content[column_names[1]]])
+
+    def test_integer_type(self):
+        temp_db = TempDB()
+        db = temp_db.db
+        
+        table_name = "Integers"
+        int_column = ColumnConfig("Integers", DataTypes.INTEGER, False)
+        db.create_table(table_name, [int_column]).execute()
+        db.insert_into(table_name, [int_column.name], [321]).execute()
+        result = db.select(table_name).fetch()[0][0]
+        self.assertEqual(type(result), int)
+
+    def test_bool_type(self):
+        temp_db = TempDB()
+        db = temp_db.db
+        
+        table_name = "Bools"
+        bool_column = ColumnConfig("Bools", DataTypes.BOOL, False)
+        db.create_table(table_name, [bool_column]).execute()
+        db.insert_into(table_name, [bool_column.name], [True]).execute()
+        db.insert_into(table_name, [bool_column.name], [False]).execute()
+        results = db.select(table_name).fetch()
+        self.assertEqual(type(results[0][0]), bool)
+        self.assertTrue(results[0][0])
+        self.assertEqual(type(results[1][0]), bool)
+        self.assertFalse(results[1][0])
 
 if __name__ == "__main__":
     unittest.main()
