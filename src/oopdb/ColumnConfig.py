@@ -10,6 +10,7 @@ class DataTypes(enum.Enum):
     '''
     TEXT = 'TEXT'
     INTEGER = 'INTEGER'
+    BOOL = 'BOOL'
 
 class ColumnConfig:
     '''

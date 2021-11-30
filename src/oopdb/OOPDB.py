@@ -15,6 +15,12 @@ class OrderingTypes(enum.Enum):
     ASCENDING = "ASC"
     DESCENDING = "DESC"
 
+class RowsStyle(enum.Enum):
+    '''
+    '''
+    DICTIONARY = "DICT"
+    TUPLE = "TUPLE"
+
 class OOPDB:
     '''
     OOP abstraction for data base communication based on sqlite3
@@ -31,7 +37,15 @@ class OOPDB:
         '''
         if db_path:
             try:
-                self.connection = sqlite3.connect(db_path)
+                self.connection = sqlite3.connect(db_path, detect_types=sqlite3.PARSE_DECLTYPES)
+                self.connection.row_factory = sqlite3.Row
+                def bool_processor(v):
+                    if v == b"True":
+                        return True
+                    elif v == b"False":
+                        return False
+                    raise ValueError
+                sqlite3.register_converter("BOOL", bool_processor)
             except sqlite3.Error as e:
                 print(f"The error '{e}' occurred")
         return self
@@ -59,11 +73,14 @@ class OOPDB:
 
         return True
 
-    def fetch(self) -> List[Any]:
+    def fetch(self, rows_style : RowsStyle = RowsStyle.TUPLE) -> List[Any]:
         '''
         Executes all queued commands
 
         Commonly used after select or other commands with any output
+
+        rows_style - RowsStyle, optional
+            Defines how fetched rows will be look like
 
         Returns list of rows
         '''
@@ -74,7 +91,11 @@ class OOPDB:
         try:
             cursor = self.connection.cursor()
             cursor.execute(query)
-            return cursor.fetchall()
+            if rows_style == RowsStyle.DICTIONARY:
+                result = [dict(row) for row in cursor.fetchall()]
+            else:
+                result = [tuple(row) for row in cursor.fetchall()]
+            return result
         except sqlite3.Error as e:
             print(f"The error '{e}' occurred for query '{query}'")
             return []
