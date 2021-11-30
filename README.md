@@ -26,3 +26,4 @@ OOPDB - OOP wrapper for work with database. For now it's based on sqlite3 python
     - [x] Select count - select row count from the table with the given name
     - [x] Inner join - merges two tables with the given table names and column names
     - [x] Order by - sort result by the given lists of column names and orders for each column
+    - [x] Update - updates the table with the given name by the given lists of column names and new values for that columns

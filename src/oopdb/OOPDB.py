@@ -17,6 +17,11 @@ class OrderingTypes(enum.Enum):
 
 class RowsStyle(enum.Enum):
     '''
+    Supported row styles
+        DICTIONARY
+            Each row will be represented as dictionary with column names as keys
+        TUPLE
+            Each row will be represented as tuple of values
     '''
     DICTIONARY = "DICT"
     TUPLE = "TUPLE"
@@ -44,6 +49,7 @@ class OOPDB:
                         return True
                     elif v == b"False":
                         return False
+                    print(f"Wrong value {v} for BOOL type")
                     raise ValueError
                 sqlite3.register_converter("BOOL", bool_processor)
             except sqlite3.Error as e:
@@ -197,12 +203,37 @@ class OOPDB:
             List of sort orders for each column
         '''
         if len(columns) != len(orders):
-            print(f"Order failed due to mismatching sizes of 'columns' and 'orders' lists")
+            print(f"Order by command queueing failed due to mismatching sizes of '{columns}' and '{orders}' lists")
             return self
 
         column_orders = []
         for column, order in zip(columns, orders):
             column_orders.append(f"{column} {order.value}")
 
-        self.query += f"ORDER BY {format_array(column_orders)}"
+        self.query += f"ORDER BY {format_array(column_orders)} "
+        return self
+
+    def update(self, table_name : str, columns : List[str], values : List[Any]) -> 'OOPDB':
+        '''
+        Adds to the queue update command
+
+        This command will set value from 'values' to the corresponding column with name from 'columns'
+        so sizes of the columns and values lists must be equal
+
+        table_name - str, required
+            The name of the table that will be updated
+        columns - List[str], required
+            The list of column names that will be updated by new values from 'values'
+        values - List[Any], required
+            New values to be set in the table for given columns
+        '''
+        if len(columns) != len(values):
+            print(f"Update command queueing failed due to mismatching sizes of '{columns}' and '{values}' lists")
+            return self
+
+        column_values = []
+        for column, value in zip(columns, values):
+            column_values.append(f"{column} = '{value}'")
+
+        self.query += f"UPDATE {table_name} SET {format_array(column_values)} "
         return self

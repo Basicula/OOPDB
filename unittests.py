@@ -171,5 +171,29 @@ class TestOOPDB(unittest.TestCase):
         self.assertEqual(type(results[1][0]), bool)
         self.assertFalse(results[1][0])
 
+    def test_updating(self):
+        temp_db = TempDB()
+        db = temp_db.db
+        
+        table_name = "TestTable"
+        bool_column = ColumnConfig("Bools", DataTypes.BOOL, False)
+        int_column = ColumnConfig("Integers", DataTypes.INTEGER, False)
+        text_column = ColumnConfig("Text", DataTypes.TEXT, False)
+        column_names = [int_column.name, text_column.name, bool_column.name]
+        db.create_table(table_name, [int_column, text_column, bool_column]).execute()
+        db.insert_into(table_name, column_names, [123, "Test123", False]).execute()
+        initial_values = db.select(table_name).fetch()
+        self.assertEqual(len(initial_values), 1)
+        self.assertEqual(initial_values[0][0], 123)
+        self.assertEqual(initial_values[0][1], "Test123")
+        self.assertEqual(initial_values[0][2], False)
+
+        db.update(table_name, column_names, [321, "Test321", True]).execute()
+        updated_values = db.select(table_name).fetch()
+        self.assertEqual(len(updated_values), 1)
+        self.assertEqual(updated_values[0][0], 321)
+        self.assertEqual(updated_values[0][1], "Test321")
+        self.assertEqual(updated_values[0][2], True)
+
 if __name__ == "__main__":
     unittest.main()
