@@ -1,6 +1,7 @@
 from typing import Any
 import enum
 import copy
+from .Utils import wrap_value
 
 class Operation(enum.Enum):
     '''
@@ -52,13 +53,11 @@ class Expression:
         Expression.__check_value_type_for_operation(operation, value)
         self.expression = f"{column_name} {operation.value} "
         if operation == Operation.IN:
-            self.expression += f"({', '.join([str(elem) for elem in value])})"
+            self.expression += f"({', '.join([wrap_value(elem) for elem in value])})"
         elif operation == Operation.BETWEEN:
-            self.expression += f"{value[0]} AND {value[1]}"
-        elif operation == Operation.LIKE:
-            self.expression += f"'{value}'"
+            self.expression += f"{wrap_value(value[0])} AND {wrap_value(value[1])}"
         else:
-            self.expression += f"{value}"
+            self.expression += f"{wrap_value(value)}"
         self.is_simple = True
 
     def OR(self, expression : 'Expression') -> 'Expression':

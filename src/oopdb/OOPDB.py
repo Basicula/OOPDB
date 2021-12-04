@@ -2,9 +2,8 @@ import sqlite3
 import enum
 from typing import Any, List
 from .ColumnConfig import *
-
-def format_array(array : List[Any], element_wrapper : str = ''):
-    return ', '.join(f'{element_wrapper}{str(elem)}{element_wrapper}' for elem in array)
+from .Expression import *
+from .Utils import wrap_value
 
 class OrderingTypes(enum.Enum):
     '''
@@ -112,7 +111,7 @@ class OOPDB:
 
         The result will be rows with table names
         '''
-        self.query += "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'slite_%';"
+        self.query += "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%';"
         return self
 
     def column_names(self, table_name : str) -> 'OOPDB':
@@ -131,7 +130,7 @@ class OOPDB:
         columns : List[ColumnConfig], required
             List of column configs for new table
         '''
-        self.query += f"CREATE TABLE {table_name} ({format_array(columns)});"
+        self.query += f"CREATE TABLE {table_name} ({OOPDB.__format_array(columns)});"
 
         return self
 
@@ -146,8 +145,8 @@ class OOPDB:
         values : List[Any], required
             List of values for selected columns
         '''
-        self.query += f"INSERT INTO {table_name} ({format_array(columns)}) "
-        self.query += "VALUES (" + format_array(values, '"') + ");"
+        self.query += f"INSERT INTO {table_name} ({OOPDB.__format_array(columns)}) "
+        self.query += f"VALUES ({OOPDB.__format_values(values)});"
 
         return self
 
@@ -161,8 +160,7 @@ class OOPDB:
             List of column names, if empty all columns will be taken for result
         '''
         if len(columns) > 0:
-            # format_array returns string with parentheses thats why substring[1:-1] is taken from returned string
-            self.query += f"SELECT {format_array(columns)} "
+            self.query += f"SELECT {OOPDB.__format_array(columns)} "
         else:
             self.query += f"SELECT * "
         self.query += f"FROM {table_name} "
@@ -210,7 +208,7 @@ class OOPDB:
         for column, order in zip(columns, orders):
             column_orders.append(f"{column} {order.value}")
 
-        self.query += f"ORDER BY {format_array(column_orders)} "
+        self.query += f"ORDER BY {OOPDB.__format_array(column_orders)} "
         return self
 
     def update(self, table_name : str, columns : List[str], values : List[Any]) -> 'OOPDB':
@@ -231,9 +229,30 @@ class OOPDB:
             print(f"Update command queueing failed due to mismatching sizes of '{columns}' and '{values}' lists")
             return self
 
-        column_values = []
-        for column, value in zip(columns, values):
-            column_values.append(f"{column} = '{value}'")
+        # no need to do anything if empty update request was given
+        if len(columns) == 0:
+            return self
 
-        self.query += f"UPDATE {table_name} SET {format_array(column_values)} "
+        self.query += f"UPDATE {table_name} SET "
+        for column, value in zip(columns, values):
+            self.query += f"{column} = {wrap_value(value)}, "
+        self.query = self.query[:-2] # remove extra ', ' after loop
         return self
+
+    def where(self, expression : Expression) -> 'OOPDB':
+        '''
+        Adds to the queue where command with the given expression
+
+        expression : Expression, required
+            Expression for filtering
+        '''
+        self.query += f"WHERE {expression.expression} "
+        return self
+
+    @staticmethod
+    def __format_array(columns : List[str]) -> str:
+        return ', '.join(str(column) for column in columns)
+
+    @staticmethod
+    def __format_values(values : List[Any]) -> str:
+        return ', '.join(wrap_value(value) for value in values)
