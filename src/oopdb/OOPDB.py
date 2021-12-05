@@ -239,10 +239,8 @@ class OOPDB:
         if len(columns) == 0:
             return self
 
-        self.query += f"UPDATE {table_name} SET "
-        for column, value in zip(columns, values):
-            self.query += f"{column} = {wrap_value(value)}, "
-        self.query = self.query[:-2] # remove extra ', ' after loop
+        update_condition = ', '.join(f"{column} = {wrap_value(value)}" for column, value in zip(columns, values))
+        self.query += f"UPDATE {table_name} SET {update_condition} "
         return self
 
     def delete(self, table_name : str) -> 'OOPDB':
