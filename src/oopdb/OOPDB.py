@@ -51,6 +51,8 @@ class OOPDB:
                     print(f"Wrong value {v} for BOOL type")
                     raise ValueError
                 sqlite3.register_converter("BOOL", bool_processor)
+
+                self.cursor = self.connection.cursor()
             except sqlite3.Error as e:
                 print(f"The error '{e}' occurred")
         return self
@@ -69,8 +71,7 @@ class OOPDB:
             query += ';'
         self.query = ""
         try:
-            cursor = self.connection.cursor()
-            cursor.executescript(query)
+            self.cursor.executescript(query)
             self.connection.commit()
         except sqlite3.Error as e:
             print(f"The error '{e}' occurred for query '{query}'")
@@ -94,16 +95,21 @@ class OOPDB:
             query += ';'
         self.query = ""
         try:
-            cursor = self.connection.cursor()
-            cursor.execute(query)
+            self.cursor.execute(query)
             if rows_style == RowsStyle.DICTIONARY:
-                result = [dict(row) for row in cursor.fetchall()]
+                result = [dict(row) for row in self.cursor.fetchall()]
             else:
-                result = [tuple(row) for row in cursor.fetchall()]
+                result = [tuple(row) for row in self.cursor.fetchall()]
             return result
         except sqlite3.Error as e:
             print(f"The error '{e}' occurred for query '{query}'")
             return []
+
+    def last_row_id(self) -> int:
+        '''
+        Returns the latest inserted row id
+        '''
+        return self.cursor.lastrowid
 
     def table_names(self) -> 'OOPDB':
         '''
