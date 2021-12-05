@@ -1,10 +1,17 @@
+    Added rows output styling on fetch
+    Added expression abstraction for describing different conditions in database queries
+    Added new functions
+        where
+        update
+        delete
+        last_row_id
 0.0.4
-    Update and extend readme
-    Add new functions:
+    Updated and extended readme
+    Added new functions:
         table_names
         column_names
         select_count
-    Add test for new and old functions
+    Added tests for new and old functions
 
 0.0.3
     First working release on PyPi with base functional for work with database based on sqlite3.
