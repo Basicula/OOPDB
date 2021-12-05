@@ -245,6 +245,16 @@ class OOPDB:
         self.query = self.query[:-2] # remove extra ', ' after loop
         return self
 
+    def delete(self, table_name : str) -> 'OOPDB':
+        '''
+        Adds delete command to the queue
+
+        table_name : str, required
+            The name of the table that will be modified with delete command
+        '''
+        self.query += f"DELETE FROM {table_name} "
+        return self
+
     def where(self, expression : Expression) -> 'OOPDB':
         '''
         Adds to the queue where command with the given expression

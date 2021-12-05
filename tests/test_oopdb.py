@@ -233,5 +233,49 @@ class TestOOPDB(unittest.TestCase):
         enabled_rows_cnt = db.select_count(table_name).where(is_enabled).fetch()[0][0]
         self.assertEqual(enabled_rows_cnt, 0)
 
+    def test_delete(self):
+        temp_db = TempDB()
+        db = temp_db.db
+        
+        table_name = "TestTable"
+        int_column = ColumnConfig("Id", DataTypes.INTEGER, False)
+        row_cnt = 100
+        rows = []
+        for row_id in range(row_cnt):
+            rows.append([row_id])
+        add_table_to_db(db, table_name, [int_column], rows)
+
+        actual_row_cnt = db.select_count(table_name).fetch()[0][0]
+        self.assertEqual(row_cnt, actual_row_cnt)
+
+        db.delete(table_name).execute()
+        actual_row_cnt = db.select_count(table_name).fetch()[0][0]
+        self.assertEqual(0, actual_row_cnt)
+
+    def test_delete_where(self):
+        temp_db = TempDB()
+        db = temp_db.db
+        
+        table_name = "TestTable"
+        int_column = ColumnConfig("Id", DataTypes.INTEGER, False)
+        bool_column = ColumnConfig("Enable", DataTypes.BOOL, False)
+        row_cnt = 100
+        rows = []
+        for row_id in range(row_cnt):
+            rows.append([row_id, bool(row_id % 2)])
+        add_table_to_db(db, table_name, [int_column, bool_column], rows)
+
+        actual_row_cnt = db.select_count(table_name).fetch()[0][0]
+        self.assertEqual(row_cnt, actual_row_cnt)
+
+        is_enable = Expression("Enable", Operation.EQUAL, True)
+        db.delete(table_name).where(is_enable).execute()
+        actual_row_cnt = db.select_count(table_name).fetch()[0][0]
+        self.assertEqual(50, actual_row_cnt)
+
+        disabled_rows = db.select(table_name).fetch(RowsStyle.DICTIONARY)
+        for row in disabled_rows:
+            self.assertFalse(bool(row["Id"] % 2))
+
 if __name__ == "__main__":
     unittest.main()
