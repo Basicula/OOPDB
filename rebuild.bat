@@ -1,2 +1,4 @@
+rmdir /s /q dist
+set version=%1
 python -m build
-pip install --force-reinstall dist/oopdb-0.0.3-py3-none-any.whl
+pip install --force-reinstall dist/oopdb-%version%-py3-none-any.whl
