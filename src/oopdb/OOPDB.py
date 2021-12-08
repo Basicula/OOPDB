@@ -109,7 +109,9 @@ class OOPDB:
         '''
         Returns the latest inserted row id
         '''
-        return self.cursor.lastrowid
+        self.cursor.execute("SELECT last_insert_rowid();")
+        res = self.cursor.fetchone()[0]
+        return res
 
     def table_names(self) -> 'OOPDB':
         '''
