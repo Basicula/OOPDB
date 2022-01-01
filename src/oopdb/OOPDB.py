@@ -158,7 +158,7 @@ class OOPDB:
 
         return self
 
-    def select(self, table_name : str, columns : List[str] = []) -> 'OOPDB':
+    def select(self, table_name : str, columns : List[str] = [], distinct : bool = False) -> 'OOPDB':
         '''
         Adds to the queue select data rows command
 
@@ -166,23 +166,41 @@ class OOPDB:
             The name for the target table
         columns : List[str], optional
             List of column names, if empty all columns will be taken for result
+        distinct : bool, optional, default False
+            Force result to contain only unique rows
         '''
+        self.query += "SELECT "
+        if distinct:
+            self.query += "DISTINCT "
         if len(columns) > 0:
-            self.query += f"SELECT {OOPDB.__format_array(columns)} "
+            self.query += f"{OOPDB.__format_array(columns)} "
         else:
-            self.query += f"SELECT * "
+            self.query += "* "
         self.query += f"FROM {table_name} "
 
         return self
 
-    def select_count(self, table_name : str) -> 'OOPDB':
+    def select_count(self, table_name : str, column_name : str = "", distinct : bool = False) -> 'OOPDB':
         '''
         Adds to the queue select data rows count command
 
         table_name : str, required
             The name for the target table
+        column_name : str, optional
+            Specifies column name which count is desired, it's required if distinct values are desired
+        distinct : bool, optional, default False
+            Force to return unique column values count
         '''
-        self.query += f"SELECT COUNT(*) FROM {table_name} "
+        count_expression = f"{column_name if column_name != '' else '*'}"
+        if distinct:
+            count_expression = "DISTINCT "
+            if column_name != "":
+                count_expression += column_name
+            else:
+                count_expression = "*"
+                print("Can't return distinct count for '*' expression, please specify column name,\
+                        as a result will be returned non distinct count")
+        self.query += f"SELECT COUNT({count_expression}) FROM {table_name} "
         return self
 
     def inner_join(self, table : str, table_column : str, target_table_column : str) -> 'OOPDB':

@@ -36,10 +36,12 @@ OOPDB - OOP wrapper for work with database. For now it's based on sqlite3 python
 - [ ] Commands
     - [x] Create table - creates table with the given name and list of column configurations
     - [x] Select - select data from the given table and list of given column names in the table
+        - [x] Distinct - optional configuration for select command to retrieve unique values
     - [x] Table names - get all table names that are exist in database
     - [x] Column names - get all column names that are exist in the table with the given table name
     - [x] Insert into - append row values to the table with the given name and list of column names
     - [x] Select count - select row count from the table with the given name
+        - [x] Distinct - optional configuration for select count command to retrieve count of the unique column values
     - [x] Inner join - merges two tables with the given table names and column names
     - [x] Order by - sort result by the given lists of column names and orders for each column
     - [x] Update - updates the table with the given name by the given lists of column names and new values for that columns

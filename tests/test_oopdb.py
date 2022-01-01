@@ -277,5 +277,30 @@ class TestOOPDB(unittest.TestCase):
         for row in disabled_rows:
             self.assertFalse(bool(row["Id"] % 2))
 
+    def test_distinct(self):
+        temp_db = TempDB()
+        db = temp_db.db
+        
+        table_name = "TestTable"
+        text_column = ColumnConfig("Text", DataTypes.TEXT, False)
+
+        row_cnt = 100
+        rows = []
+        for row_id in range(row_cnt):
+            rows.append([f"Text_is_{row_id % 2}"])
+        add_table_to_db(db, table_name, [text_column], rows)
+
+        actual_row_cnt = db.select_count(table_name).fetch()[0][0]
+        self.assertEqual(row_cnt, actual_row_cnt)
+
+        distinct_row_cnt = db.select_count(table_name, text_column.name, True).fetch()[0][0]
+        self.assertEqual(2, distinct_row_cnt)
+
+        distinct_rows = db.select(table_name, distinct = True).fetch()
+        self.assertEqual(len(distinct_rows), 2)
+        self.assertEqual(distinct_rows[0][0], "Text_is_0")
+        self.assertEqual(distinct_rows[1][0], "Text_is_1")
+
+
 if __name__ == "__main__":
     unittest.main()
